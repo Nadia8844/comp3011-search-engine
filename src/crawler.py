@@ -15,7 +15,7 @@ class Crawler:
         self.pages = {}
 
     def _is_valid_url(self, url: str) -> bool:
-        """Check the URL belongs to the same domain and hasn't been visited."""
+        """Check the URL belongs to the same domain and hasn't been visited"""
         parsed = urlparse(url)
         return (
             parsed.netloc == self.domain
@@ -23,7 +23,7 @@ class Crawler:
         )
 
     def _extract_links(self, soup: BeautifulSoup, base_url: str) -> list:
-        """Extract all valid links from a page."""
+        """Extract all valid links from a page"""
         links = []
         for tag in soup.find_all("a", href=True):
             full_url = urljoin(base_url, tag["href"])
@@ -33,7 +33,40 @@ class Crawler:
         return links
 
     def _extract_text(self, soup: BeautifulSoup) -> str:
-        """Extract clean visible text from a page."""
+        """Extract clean visible text from a page"""
         for tag in soup(["script", "style", "meta"]):
             tag.decompose()
         return soup.get_text(separator=" ", strip=True)
+
+    def crawl(self) -> dict:
+        """Crawl all pages starting from the seed URL
+        
+        Returns a dict mapping page URL to its extracted text
+        """
+        queue = [self.seed_url]
+
+        while queue:
+            url = queue.pop(0)
+
+            if url in self.visited:
+                continue
+
+            try:
+                print(f"Crawling: {url}")
+                response = requests.get(url, timeout=10)
+                response.raise_for_status()
+
+                soup = BeautifulSoup(response.text, "html.parser")
+                text = self._extract_text(soup)
+                self.pages[url] = text
+                self.visited.add(url)
+
+                new_links = self._extract_links(soup, url)
+                queue.extend(new_links)
+
+            except requests.RequestException as e:
+                print(f"Failed to fetch {url}: {e}")
+
+            time.sleep(self.politeness)
+
+        return self.pages
