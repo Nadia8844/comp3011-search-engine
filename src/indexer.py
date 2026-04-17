@@ -36,3 +36,18 @@ class Indexer:
                 self.index[word][url]["positions"].append(position)
 
         return self.index
+    
+    def save(self, filepath: str) -> None:
+        """Save the inverted index to a JSON file"""
+        import json
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(self.index, f, indent=2)
+        print(f"Index saved to {filepath}")
+
+    def load(self, filepath: str) -> dict:
+        """Load the inverted index from a JSON file"""
+        import json
+        with open(filepath, "r", encoding="utf-8") as f:
+            self.index = json.load(f)
+        print(f"Index loaded from {filepath} ({len(self.index)} terms)")
+        return self.index
