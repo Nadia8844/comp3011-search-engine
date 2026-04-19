@@ -64,3 +64,6 @@ def run_shell(searcher: Searcher = None) -> None:
 
         else:
             print(f"Unknown command: '{command}'. Try build, load, print, find, or exit.")
+
+        if __name__ == "__main__":
+            run_shell()
