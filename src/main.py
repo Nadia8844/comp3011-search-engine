@@ -1,6 +1,6 @@
-from src.crawler import Crawler
-from src.indexer import Indexer
-from src.search import Searcher
+from crawler import Crawler
+from indexer import Indexer
+from search import Searcher
 
 INDEX_PATH = "data/index.json"
 
