@@ -76,3 +76,52 @@ class TestCrawlerLinkExtraction:
         soup = BeautifulSoup(html, "html.parser")
         links = self.crawler._extract_links(soup, "https://quotes.toscrape.com/")
         assert "https://quotes.toscrape.com/page/2/" in links
+
+class TestCrawlerCrawlLoop:
+    """Tests for the main crawl loop using mocked HTTP requests"""
+
+    def setup_method(self):
+        self.crawler = Crawler("https://quotes.toscrape.com/", politeness=0)
+
+    @patch("src.crawler.time.sleep")
+    @patch("src.crawler.requests.get")
+    def test_crawl_returns_pages(self, mock_get, mock_sleep):
+        mock_response = MagicMock()
+        mock_response.text = make_html(text="some quote text")
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        pages = self.crawler.crawl()
+        assert len(pages) > 0
+
+    @patch("src.crawler.time.sleep")
+    @patch("src.crawler.requests.get")
+    def test_crawl_respects_politeness(self, mock_get, mock_sleep):
+        mock_response = MagicMock()
+        mock_response.text = make_html()
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        crawler = Crawler("https://quotes.toscrape.com/", politeness=6)
+        crawler.crawl()
+        mock_sleep.assert_called_with(6)
+
+    @patch("src.crawler.time.sleep")
+    @patch("src.crawler.requests.get")
+    def test_crawl_handles_failed_request(self, mock_get, mock_sleep):
+        import requests
+        mock_get.side_effect = requests.RequestException("connection error")
+        pages = self.crawler.crawl()
+        assert isinstance(pages, dict)
+
+    @patch("src.crawler.time.sleep")
+    @patch("src.crawler.requests.get")
+    def test_crawl_does_not_visit_same_url_twice(self, mock_get, mock_sleep):
+        mock_response = MagicMock()
+        mock_response.text = make_html()
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        self.crawler.crawl()
+        urls_fetched = [call[0][0] for call in mock_get.call_args_list]
+        assert len(urls_fetched) == len(set(urls_fetched))
