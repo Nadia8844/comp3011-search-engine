@@ -31,3 +31,48 @@ class TestCrawlerInit:
     def test_visited_starts_empty(self):
         crawler = Crawler("https://quotes.toscrape.com/")
         assert crawler.visited == set()
+
+class TestCrawlerURLValidation:
+    """Tests for URL validation logic."""
+
+    def setup_method(self):
+        self.crawler = Crawler("https://quotes.toscrape.com/")
+
+    def test_valid_url_accepted(self):
+        assert self.crawler._is_valid_url("https://quotes.toscrape.com/page/2/") is True
+
+    def test_external_url_rejected(self):
+        assert self.crawler._is_valid_url("https://google.com") is False
+
+    def test_already_visited_rejected(self):
+        self.crawler.visited.add("https://quotes.toscrape.com/page/2/")
+        assert self.crawler._is_valid_url("https://quotes.toscrape.com/page/2/") is False
+
+
+class TestCrawlerLinkExtraction:
+    """Tests for link extraction from HTML"""
+
+    def setup_method(self):
+        self.crawler = Crawler("https://quotes.toscrape.com/")
+
+    def test_extracts_internal_links(self):
+        from bs4 import BeautifulSoup
+        html = make_html(links=["/page/2/", "/author/Einstein"])
+        soup = BeautifulSoup(html, "html.parser")
+        links = self.crawler._extract_links(soup, "https://quotes.toscrape.com/")
+        assert "https://quotes.toscrape.com/page/2/" in links
+        assert "https://quotes.toscrape.com/author/Einstein" in links
+
+    def test_ignores_external_links(self):
+        from bs4 import BeautifulSoup
+        html = make_html(links=["https://google.com"])
+        soup = BeautifulSoup(html, "html.parser")
+        links = self.crawler._extract_links(soup, "https://quotes.toscrape.com/")
+        assert links == []
+
+    def test_strips_fragments(self):
+        from bs4 import BeautifulSoup
+        html = make_html(links=["/page/2/#section"])
+        soup = BeautifulSoup(html, "html.parser")
+        links = self.crawler._extract_links(soup, "https://quotes.toscrape.com/")
+        assert "https://quotes.toscrape.com/page/2/" in links
