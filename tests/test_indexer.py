@@ -32,3 +32,34 @@ class TestIndexerTokenise:
         tokens = self.indexer._tokenise("page 2 of 10")
         assert "2" not in tokens
         assert "10" not in tokens
+
+class TestIndexerBuild:
+    """Tests for index building logic"""
+
+    def setup_method(self):
+        self.indexer = Indexer()
+        self.indexer.build(SAMPLE_PAGES)
+
+    def test_index_contains_word(self):
+        assert "good" in self.indexer.index
+
+    def test_word_frequency_correct(self):
+        assert self.indexer.index["good"]["https://quotes.toscrape.com/"]["freq"] == 1
+        assert self.indexer.index["good"]["https://quotes.toscrape.com/page/2/"]["freq"] == 1
+
+    def test_positions_recorded(self):
+        positions = self.indexer.index["good"]["https://quotes.toscrape.com/"]["positions"]
+        assert isinstance(positions, list)
+        assert len(positions) > 0
+
+    def test_case_insensitive_indexing(self):
+        assert "the" in self.indexer.index
+        assert "world" in self.indexer.index
+
+    def test_word_appears_in_multiple_pages(self):
+        assert len(self.indexer.index["world"]) == 2
+
+    def test_empty_pages_returns_empty_index(self):
+        indexer = Indexer()
+        indexer.build({})
+        assert indexer.index == {}
