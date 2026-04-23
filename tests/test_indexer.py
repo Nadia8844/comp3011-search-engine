@@ -63,3 +63,40 @@ class TestIndexerBuild:
         indexer = Indexer()
         indexer.build({})
         assert indexer.index == {}
+
+class TestIndexerSaveLoad:
+    """Tests for index persistence."""
+
+    def setup_method(self):
+        self.indexer = Indexer()
+        self.indexer.build(SAMPLE_PAGES)
+
+    def test_save_creates_file(self, tmp_path):
+        filepath = str(tmp_path / "index.json")
+        self.indexer.save(filepath)
+        import os
+        assert os.path.exists(filepath)
+
+    def test_load_restores_index(self, tmp_path):
+        filepath = str(tmp_path / "index.json")
+        self.indexer.save(filepath)
+
+        new_indexer = Indexer()
+        new_indexer.load(filepath)
+        assert "good" in new_indexer.index
+
+    def test_load_missing_file_handled(self, tmp_path):
+        filepath = str(tmp_path / "nonexistent.json")
+        indexer = Indexer()
+        indexer.load(filepath)
+        assert indexer.index == {}
+
+    def test_roundtrip_preserves_positions(self, tmp_path):
+        filepath = str(tmp_path / "index.json")
+        original_positions = self.indexer.index["good"]["https://quotes.toscrape.com/"]["positions"]
+        self.indexer.save(filepath)
+
+        new_indexer = Indexer()
+        new_indexer.load(filepath)
+        loaded_positions = new_indexer.index["good"]["https://quotes.toscrape.com/"]["positions"]
+        assert original_positions == loaded_positions
