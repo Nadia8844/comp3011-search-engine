@@ -44,7 +44,7 @@ class Indexer:
             json.dump(self.index, f, indent=2)
         print(f"Index saved to {filepath}")
 
-def load(self, filepath: str) -> dict:
+    def load(self, filepath: str) -> dict:
         """Load the inverted index from a JSON file"""
         import json
         try:
