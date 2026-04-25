@@ -67,3 +67,35 @@ class TestSearcherFind:
     def test_empty_query_returns_empty(self):
         results = self.searcher.find([])
         assert results == []
+
+class TestSearcherPrintWord:
+    """Tests for the print_word method."""
+
+    def setup_method(self):
+        self.searcher = Searcher(SAMPLE_INDEX)
+
+    def test_existing_word_prints(self, capsys):
+        self.searcher.print_word("good")
+        captured = capsys.readouterr()
+        assert "good" in captured.out
+        assert "2" in captured.out
+
+    def test_missing_word_prints_message(self, capsys):
+        self.searcher.print_word("nonexistentword")
+        captured = capsys.readouterr()
+        assert "not found" in captured.out
+
+    def test_case_insensitive_print(self, capsys):
+        self.searcher.print_word("GOOD")
+        captured = capsys.readouterr()
+        assert "good" in captured.out
+
+    def test_shows_frequency(self, capsys):
+        self.searcher.print_word("good")
+        captured = capsys.readouterr()
+        assert "freq" in captured.out or "frequency" in captured.out
+
+    def test_shows_positions(self, capsys):
+        self.searcher.print_word("good")
+        captured = capsys.readouterr()
+        assert "positions" in captured.out
