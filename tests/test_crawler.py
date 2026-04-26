@@ -125,3 +125,26 @@ class TestCrawlerCrawlLoop:
         self.crawler.crawl()
         urls_fetched = [call[0][0] for call in mock_get.call_args_list]
         assert len(urls_fetched) == len(set(urls_fetched))
+
+    @patch("src.crawler.time.sleep")
+    @patch("src.crawler.requests.get")
+    def test_extract_text_removes_script_tags(self, mock_get, mock_sleep):
+        from bs4 import BeautifulSoup
+        html = "<html><body><script>alert()</script><p>clean text</p></body></html>"
+        soup = BeautifulSoup(html, "html.parser")
+        crawler = Crawler("https://quotes.toscrape.com/")
+        text = crawler._extract_text(soup)
+        assert "alert" not in text
+        assert "clean" in text
+
+    @patch("src.crawler.time.sleep")
+    @patch("src.crawler.requests.get")
+    def test_duplicate_url_in_queue_skipped(self, mock_get, mock_sleep):
+        mock_response = MagicMock()
+        mock_response.text = "<html><body>text</body></html>"
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        crawler = Crawler("https://quotes.toscrape.com/", politeness=0)
+        crawler.visited.add("https://quotes.toscrape.com/")
+        crawler.crawl()
+        mock_get.assert_not_called()

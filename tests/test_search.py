@@ -99,3 +99,7 @@ class TestSearcherPrintWord:
         self.searcher.print_word("good")
         captured = capsys.readouterr()
         assert "positions" in captured.out
+
+    def test_tfidf_returns_zero_for_missing_url(self):
+        score = self.searcher._tfidf("good", "https://quotes.toscrape.com/nonexistent/")
+        assert score == 0.0
