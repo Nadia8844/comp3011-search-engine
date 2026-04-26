@@ -51,7 +51,7 @@ class TestSearcherFind:
         assert "https://quotes.toscrape.com/page/2/" not in urls
 
     def test_no_intersection_returns_empty(self):
-        results = self.searcher.find(["friends", "life"])
+        results = self.searcher.find(["friends", "nonexistentword"])
         assert results == []
 
     def test_results_sorted_by_score(self):
@@ -69,7 +69,7 @@ class TestSearcherFind:
         assert results == []
 
 class TestSearcherPrintWord:
-    """Tests for the print_word method."""
+    """Tests for the print_word method"""
 
     def setup_method(self):
         self.searcher = Searcher(SAMPLE_INDEX)
