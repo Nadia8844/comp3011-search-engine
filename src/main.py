@@ -1,9 +1,10 @@
+import os
 from crawler import Crawler
 from indexer import Indexer
 from search import Searcher
 
-INDEX_PATH = "data/index.json"
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INDEX_PATH = os.path.join(BASE_DIR, "data", "index.json")
 
 def run_shell(searcher: Searcher = None) -> None:
     """Run an interactive command-line shell for the search tool"""
