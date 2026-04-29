@@ -1,4 +1,6 @@
 import os
+
+from certifi.__main__ import args
 from crawler import Crawler
 from indexer import Indexer
 from search import Searcher
@@ -8,7 +10,8 @@ INDEX_PATH = os.path.join(BASE_DIR, "data", "index.json")
 
 def run_shell(searcher: Searcher = None) -> None:
     """Run an interactive command-line shell for the search tool"""
-    print("\nSearch Engine ready. Commands: build, load, print <word>, find <query>, exit\n")
+    print("\nSearch Engine ready.")
+    print("Commands: build, load, print <word>, find <query>, find \"exact phrase\", exit\n")
 
     indexer = Indexer()
 
@@ -49,13 +52,22 @@ def run_shell(searcher: Searcher = None) -> None:
 
         elif command == "find":
             if not args:
-                print("Usage: find <word> [word2 ...]")
+                print("Usage: find <word> [word2 ...]  or  find \"exact phrase\"")
             elif searcher is None:
                 print("No index loaded. Run 'build' or 'load' first.")
             else:
-                results = searcher.find(args)
+                # detect phrase search: find "good friends"
+                raw_args = raw[len("find"):].strip()
+                if raw_args.startswith('"') and raw_args.endswith('"'):
+                    phrase = raw_args[1:-1].split()
+                    results = searcher.find_phrase(phrase)
+                    mode = "phrase"
+                else:
+                    results = searcher.find(args)
+                    mode = "AND"
+
                 if results:
-                    print(f"\nFound {len(results)} page(s):\n")
+                    print(f"\nFound {len(results)} page(s) [{mode} search]:\n")
                     for url, score in results:
                         print(f"  {url}  (score: {score:.4f})")
 
