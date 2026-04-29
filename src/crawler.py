@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 
 class Crawler:
-    """Crawls all pages of a target website and returns their text content2"""
+    """Crawls all pages of a target website and returns their text content"""
 
     def __init__(self, seed_url: str, politeness: int = 6):
         self.seed_url = seed_url
@@ -38,10 +38,11 @@ class Crawler:
             tag.decompose()
         return soup.get_text(separator=" ", strip=True)
 
-    def crawl(self) -> dict:
-        """Crawl all pages starting from the seed URL
-        
-        Returns a dict mapping page URL to its extracted text
+def crawl(self) -> dict:
+        """Crawl all pages starting from the seed URL using a breadth-first queue
+
+        Observes a politeness window between requests and handles network
+        errors gracefully. Returns a dict mapping page URL to extracted text
         """
         queue = [self.seed_url]
 
