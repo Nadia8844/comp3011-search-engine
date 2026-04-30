@@ -146,3 +146,14 @@ class TestSearcherPhrase:
     def test_phrase_no_match_returns_empty(self):
         results = self.searcher.find_phrase(["friends", "good"])
         assert results == []
+
+    def test_phrase_no_common_pages_returns_empty(self, capsys):
+        index = {
+            "hello": {"https://quotes.toscrape.com/page/1/": {"freq": 1, "positions": [0]}},
+            "world": {"https://quotes.toscrape.com/page/2/": {"freq": 1, "positions": [0]}},
+        }
+        searcher = Searcher(index)
+        results = searcher.find_phrase(["hello", "world"])
+        assert results == []
+        captured = capsys.readouterr()
+        assert "No pages found" in captured.out
