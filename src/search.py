@@ -2,7 +2,7 @@ import math
 
 
 class Searcher:
-    """Handles search operations over an inverted index"""
+    """Handles search operations over an inverted index."""
 
     def __init__(self, index: dict):
         self.index = index
@@ -11,7 +11,7 @@ class Searcher:
         )
 
     def print_word(self, word: str) -> None:
-        """Print the index entry for a single word"""
+        """Print the index entry for a single word."""
         word = word.lower()
 
         if word not in self.index:
@@ -36,7 +36,7 @@ class Searcher:
         df = len(postings)
         idf = math.log(self.total_docs / (1 + df))
         return tf * idf
-    
+
     def _is_phrase_match(self, query: list, url: str) -> bool:
         """Check if query words appear consecutively in the given page.
 
@@ -65,7 +65,6 @@ class Searcher:
         """
         query = [word.lower() for word in query]
 
-        # get AND intersection first
         matching_urls = None
         for word in query:
             if word not in self.index:
@@ -81,34 +80,20 @@ class Searcher:
             print("No pages found containing all query terms.")
             return []
 
-        # filter to phrase matches only
         phrase_urls = [url for url in matching_urls if self._is_phrase_match(query, url)]
 
         if not phrase_urls:
             print("No pages found containing that exact phrase.")
             return []
 
-        # rank by combined TF-IDF score
         scored = [(url, sum(self._tfidf(w, url) for w in query)) for url in phrase_urls]
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored
-    
-def test_phrase_no_common_pages_returns_empty(self, capsys):
-        index = {
-            "hello": {"https://quotes.toscrape.com/page/1/": {"freq": 1, "positions": [0]}},
-            "world": {"https://quotes.toscrape.com/page/2/": {"freq": 1, "positions": [0]}},
-        }
-        searcher = Searcher(index)
-        results = searcher.find_phrase(["hello", "world"])
-        assert results == []
-        captured = capsys.readouterr()
-        assert "No pages found" in captured.out
 
     def find(self, query: list) -> list:
-        """Find pages containing all query terms, ranked by TF-IDF score"""
+        """Find pages containing all query terms, ranked by TF-IDF score."""
         query = [word.lower() for word in query]
 
-        # find pages that contain every query term
         matching_urls = None
         for word in query:
             if word not in self.index:
@@ -124,7 +109,6 @@ def test_phrase_no_common_pages_returns_empty(self, capsys):
             print("No pages found containing all query terms.")
             return []
 
-        # rank by combined TF-IDF score
         scored = []
         for url in matching_urls:
             score = sum(self._tfidf(word, url) for word in query)
