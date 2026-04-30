@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 
 class Crawler:
-    """Crawls all pages of a target website and returns their text content"""
+    """Crawls all pages of a target website and returns their text content."""
 
     def __init__(self, seed_url: str, politeness: int = 6):
         self.seed_url = seed_url
@@ -15,7 +15,7 @@ class Crawler:
         self.pages = {}
 
     def _is_valid_url(self, url: str) -> bool:
-        """Check the URL belongs to the same domain and hasn't been visited"""
+        """Check the URL belongs to the same domain and hasn't been visited."""
         parsed = urlparse(url)
         return (
             parsed.netloc == self.domain
@@ -23,26 +23,26 @@ class Crawler:
         )
 
     def _extract_links(self, soup: BeautifulSoup, base_url: str) -> list:
-        """Extract all valid links from a page"""
+        """Extract all valid internal links from a parsed page."""
         links = []
         for tag in soup.find_all("a", href=True):
             full_url = urljoin(base_url, tag["href"])
-            full_url = full_url.split("#")[0]  # strip fragments
+            full_url = full_url.split("#")[0]
             if self._is_valid_url(full_url):
                 links.append(full_url)
         return links
 
     def _extract_text(self, soup: BeautifulSoup) -> str:
-        """Extract clean visible text from a page"""
+        """Extract clean visible text from a page, stripping scripts and styles."""
         for tag in soup(["script", "style", "meta"]):
             tag.decompose()
         return soup.get_text(separator=" ", strip=True)
 
-def crawl(self) -> dict:
-        """Crawl all pages starting from the seed URL using a breadth-first queue
+    def crawl(self) -> dict:
+        """Crawl all pages starting from the seed URL using a breadth-first queue.
 
         Observes a politeness window between requests and handles network
-        errors gracefully. Returns a dict mapping page URL to extracted text
+        errors gracefully. Returns a dict mapping page URL to extracted text.
         """
         queue = [self.seed_url]
 
