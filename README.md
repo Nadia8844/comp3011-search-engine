@@ -53,6 +53,7 @@ python main.py
 ```
 > find indifference
 > find good friends
+> find "good friends"
 ```
 
 **exit** — quit the shell:
@@ -74,7 +75,7 @@ Run with coverage:
 pytest --cov=src --cov-report=term-missing
 ```
 
-The test suite has 46 tests with 100% coverage across crawler, indexer and search modules.
+The test suite has 53 tests with 100% coverage across crawler, indexer and search modules.
 
 ## Dependencies
 
@@ -91,4 +92,4 @@ pip install -r requirements.txt
 
 ## Design decisions
 
-The inverted index stores word frequency and token positions for each page, which enables accurate multi-word search and TF-IDF ranking. The `find` command returns results sorted by combined TF-IDF score, giving higher weight to pages where query terms are more distinctive. The crawler strips script, style and meta tags before indexing to avoid noise in the index.
+The inverted index stores word frequency and token positions for each page, which enables accurate multi-word search and TF-IDF ranking. The `find` command returns results sorted by combined TF-IDF score, giving higher weight to pages where query terms are more distinctive. The crawler strips script, style and meta tags before indexing to avoid noise in the index. Word positions are stored in the index to support exact phrase search — wrapping a query in quotes (e.g. `find "good friends"`) returns only pages where the terms appear consecutively.
