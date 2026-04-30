@@ -92,6 +92,17 @@ class Searcher:
         scored = [(url, sum(self._tfidf(w, url) for w in query)) for url in phrase_urls]
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored
+    
+def test_phrase_no_common_pages_returns_empty(self, capsys):
+        index = {
+            "hello": {"https://quotes.toscrape.com/page/1/": {"freq": 1, "positions": [0]}},
+            "world": {"https://quotes.toscrape.com/page/2/": {"freq": 1, "positions": [0]}},
+        }
+        searcher = Searcher(index)
+        results = searcher.find_phrase(["hello", "world"])
+        assert results == []
+        captured = capsys.readouterr()
+        assert "No pages found" in captured.out
 
     def find(self, query: list) -> list:
         """Find pages containing all query terms, ranked by TF-IDF score"""
@@ -121,14 +132,3 @@ class Searcher:
 
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored
-    
-def test_phrase_no_common_pages_returns_empty(self, capsys):
-        index = {
-            "hello": {"https://quotes.toscrape.com/page/1/": {"freq": 1, "positions": [0]}},
-            "world": {"https://quotes.toscrape.com/page/2/": {"freq": 1, "positions": [0]}},
-        }
-        searcher = Searcher(index)
-        results = searcher.find_phrase(["hello", "world"])
-        assert results == []
-        captured = capsys.readouterr()
-        assert "No pages found" in captured.out

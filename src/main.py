@@ -1,6 +1,4 @@
 import os
-
-from certifi.__main__ import args
 from crawler import Crawler
 from indexer import Indexer
 from search import Searcher
