@@ -1,7 +1,19 @@
 import os
+import logging
 from crawler import Crawler
 from indexer import Indexer
 from search import Searcher
+
+LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "search_engine.log")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_PATH),
+        logging.StreamHandler()
+    ]
+)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX_PATH = os.path.join(BASE_DIR, "data", "index.json")
