@@ -1,7 +1,10 @@
 import requests
 import time
+import logging
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 
 class Crawler:
@@ -53,7 +56,7 @@ class Crawler:
                 continue
 
             try:
-                print(f"Crawling: {url}")
+                logger.info(f"Crawling: {url}")
                 response = requests.get(url, timeout=10)
                 response.raise_for_status()
 
@@ -66,7 +69,7 @@ class Crawler:
                 queue.extend(new_links)
 
             except requests.RequestException as e:
-                print(f"Failed to fetch {url}: {e}")
+                logger.warning(f"Failed to fetch {url}: {e}")
 
             time.sleep(self.politeness)
 
