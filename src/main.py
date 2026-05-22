@@ -8,8 +8,7 @@ INDEX_PATH = os.path.join(BASE_DIR, "data", "index.json")
 
 def run_shell(searcher: Searcher = None) -> None:
     """Run an interactive command-line shell for the search tool"""
-    print("\nSearch Engine ready.")
-    print("Commands: build, load, print <word>, find <query>, find \"exact phrase\", exit\n")
+    print("\nSearch Engine ready. Type 'help' for a list of commands.\n")
 
     indexer = Indexer()
 
@@ -73,8 +72,18 @@ def run_shell(searcher: Searcher = None) -> None:
             print("Exiting.")
             break
 
+        elif command == "help":
+            print("\nAvailable commands:")
+            print("  build              — crawl the site and build the index")
+            print("  load               — load the index from disk")
+            print("  print <word>       — show index entry for a word")
+            print("  find <query>       — AND search ranked by TF-IDF")
+            print("  find \"<phrase>\"    — exact phrase search")
+            print("  help               — show this help message")
+            print("  exit               — quit the shell\n")
+
         else:
-            print(f"Unknown command: '{command}'. Try build, load, print, find, or exit.")
+            print(f"Unknown command: '{command}'. Try build, load, print, find, find \"phrase\", help, or exit.")
 
 if __name__ == "__main__":
     run_shell()
